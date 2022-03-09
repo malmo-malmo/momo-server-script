@@ -54,7 +54,7 @@ class TestRunner {
 	@Test
 	public void test() {
 		def map = [provider: "kakao", authorizationCode: "code", deviceCode: "code"]
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8081/api/oauth/login", map)
+		HTTPResponse response = request.POST("http://{host}:{port}/api/oauth/login", map)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

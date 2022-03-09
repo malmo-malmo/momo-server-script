@@ -50,7 +50,7 @@ class TestRunner {
 
 	@Test
 	public void test() {
-		HTTPResponse response = request.GET("http://gunimon.iptime.org:8081/api/schedule/user-schedules?searchStartDate=2021-12-01&searchEndDate=2021-12-02")
+		HTTPResponse response = request.GET("http://{host}:{port}/api/schedule/user-schedules?searchStartDate=2021-12-01&searchEndDate=2021-12-02")
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

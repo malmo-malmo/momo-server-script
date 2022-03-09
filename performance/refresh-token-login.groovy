@@ -53,7 +53,7 @@ class TestRunner {
 	@Test
 	public void test() {
 		def map = [refreshToken : "리프레쉬 토큰", deviceCode : "deviceCode"]
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8081/api/oauth/login/refresh", map)
+		HTTPResponse response = request.POST("{host}", map)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

@@ -1,3 +1,5 @@
+package api
+
 import static net.grinder.script.Grinder.grinder
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
@@ -6,6 +8,7 @@ import net.grinder.script.Grinder
 import net.grinder.scriptengine.groovy.junit.GrinderRunner
 import net.grinder.scriptengine.groovy.junit.annotation.BeforeProcess
 import net.grinder.scriptengine.groovy.junit.annotation.BeforeThread
+// import static net.grinder.util.GrinderUtils.* // You can use this if you're using nGrinder after 3.2.3
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -30,7 +33,7 @@ class TestRunner {
 	@BeforeProcess
 	public static void beforeProcess() {
 		HTTPRequestControl.setConnectionTimeout(300000)
-		test = new GTest(1, "Refresh Token Login Performance Test")
+		test = new GTest(1, "Login Performance Test")
 		request = new HTTPRequest()
 		grinder.logger.info("before process.")
 	}
@@ -52,11 +55,8 @@ class TestRunner {
 
 	@Test
 	public void test() {
-		Random rd = new Random();
-		String rt = String.valueOf(rd.nextInt(200000 - 1) + 1);
-	
-		def map = [refreshToken : rt, deviceCode : "deviceCode"]
-		HTTPResponse response = request.POST("http://{host}:{port}/api/oauth/login/refresh", map)
+		def map = [provider: "kakao", authorizationCode: "code", deviceCode: "code"]
+		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/oauth/login", map)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

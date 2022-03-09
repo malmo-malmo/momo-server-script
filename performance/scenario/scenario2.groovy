@@ -1,3 +1,5 @@
+package scenario
+
 import static net.grinder.script.Grinder.grinder
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
@@ -27,14 +29,14 @@ class TestRunner {
 	public static GTest test1
 	public static GTest test2
 	public static GTest test3
-	
+
 	public static HTTPRequest request
 	public static NVPair[] headers = []
 	public static List<Cookie> cookies = []
-	
+
 	public static def slurper = new JsonSlurper()
 	public static def toJSON = { slurper.parseText(it) }
-	
+
 	public static String accessToken;
 	public static int groupId;
 
@@ -45,7 +47,7 @@ class TestRunner {
 		test2 = new GTest(2, "내 모임 목록 조회")
 		test3 = new GTest(3, "일정 생성")
 		request = new HTTPRequest()
-		
+
 		grinder.logger.info("before process.")
 	}
 
@@ -57,7 +59,7 @@ class TestRunner {
 		grinder.statistics.delayReports = true
 		grinder.logger.info("before thread.")
 	}
-	
+
 	@Before
 	public void before() {
 		headers = [ new NVPair("Content-type", "application/json;charset=UTF-8"), new NVPair("Authorization", "Bearer " + accessToken)]
@@ -81,13 +83,13 @@ class TestRunner {
 			assertThat(response.statusCode, is(200))
 		}
 	}
-	
+
 	//내 모임 목록 조회
 	@Test
 	public void test2() {
-	
+
 		HTTPResponse response = request.GET("http://gunimon.iptime.org:8090/api/management/my-groups/details")
-		
+
 		def result = response.getBody(toJSON);
 		groupId = result[0].id;
 
@@ -97,12 +99,12 @@ class TestRunner {
 			assertThat(response.statusCode, is(200))
 		}
 	}
-	
+
 	//일정 생성
 	@Test
 	public void test3() {
 		def body = [groupId: groupId, title: "제목", isOffline: true, startDateTime: "2022-03-01T14:51:48.550212", contents: "내용"]
-		
+
 		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/schedule", body)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {

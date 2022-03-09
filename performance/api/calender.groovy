@@ -1,3 +1,5 @@
+package api
+
 import static net.grinder.script.Grinder.grinder
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
@@ -6,7 +8,6 @@ import net.grinder.script.Grinder
 import net.grinder.scriptengine.groovy.junit.GrinderRunner
 import net.grinder.scriptengine.groovy.junit.annotation.BeforeProcess
 import net.grinder.scriptengine.groovy.junit.annotation.BeforeThread
-// import static net.grinder.util.GrinderUtils.* // You can use this if you're using nGrinder after 3.2.3
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -18,20 +19,19 @@ import org.ngrinder.http.HTTPResponse
 import org.ngrinder.http.cookie.Cookie
 import org.ngrinder.http.cookie.CookieManager
 
-import HTTPClient.NVPair
-
 @RunWith(GrinderRunner)
 class TestRunner {
 
 	public static GTest test
 	public static HTTPRequest request
-	public static NVPair[] headers = []
+	public static Map<String, String> headers = [:]
+	public static Map<String, Object> params = [:]
 	public static List<Cookie> cookies = []
 
 	@BeforeProcess
 	public static void beforeProcess() {
 		HTTPRequestControl.setConnectionTimeout(300000)
-		test = new GTest(1, "Login Performance Test")
+		test = new GTest(1, "User Schedule Performance Test")
 		request = new HTTPRequest()
 		grinder.logger.info("before process.")
 	}
@@ -45,7 +45,6 @@ class TestRunner {
 
 	@Before
 	public void before() {
-		headers = [ new NVPair("Content-type", "application/json;charset=UTF-8") ]
 		request.setHeaders(headers)
 		CookieManager.addCookies(cookies)
 		grinder.logger.info("before. init headers and cookies")
@@ -53,8 +52,7 @@ class TestRunner {
 
 	@Test
 	public void test() {
-		def map = [provider: "kakao", authorizationCode: "code", deviceCode: "code"]
-		HTTPResponse response = request.POST("http://{host}:{port}/api/oauth/login", map)
+		HTTPResponse response = request.GET("http://gunimon.iptime.org:8090/api/schedule/user-schedules?searchStartDate=2021-12-01&searchEndDate=2021-12-02")
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

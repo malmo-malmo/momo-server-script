@@ -1,3 +1,5 @@
+package api
+
 import static net.grinder.script.Grinder.grinder
 import static org.junit.Assert.*
 import static org.hamcrest.Matchers.*
@@ -17,19 +19,20 @@ import org.ngrinder.http.HTTPResponse
 import org.ngrinder.http.cookie.Cookie
 import org.ngrinder.http.cookie.CookieManager
 
+import HTTPClient.NVPair
+
 @RunWith(GrinderRunner)
 class TestRunner {
 
 	public static GTest test
 	public static HTTPRequest request
-	public static Map<String, String> headers = [:]
-	public static Map<String, Object> params = [:]
+	public static NVPair[] headers = []
 	public static List<Cookie> cookies = []
 
 	@BeforeProcess
 	public static void beforeProcess() {
 		HTTPRequestControl.setConnectionTimeout(300000)
-		test = new GTest(1, "User Schedule Performance Test")
+		test = new GTest(1, "Refresh Token Login Performance Test")
 		request = new HTTPRequest()
 		grinder.logger.info("before process.")
 	}
@@ -43,6 +46,7 @@ class TestRunner {
 
 	@Before
 	public void before() {
+		headers = [ new NVPair("Content-type", "application/json;charset=UTF-8") ]
 		request.setHeaders(headers)
 		CookieManager.addCookies(cookies)
 		grinder.logger.info("before. init headers and cookies")
@@ -50,7 +54,11 @@ class TestRunner {
 
 	@Test
 	public void test() {
-		HTTPResponse response = request.GET("http://{host}:{port}/api/schedule/user-schedules?searchStartDate=2021-12-01&searchEndDate=2021-12-02")
+		Random rd = new Random();
+		String rt = String.valueOf(rd.nextInt(200000 - 1) + 1);
+
+		def map = [refreshToken : rt, deviceCode : "deviceCode"]
+		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/oauth/login/refresh", map)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

@@ -52,8 +52,11 @@ class TestRunner {
 
 	@Test
 	public void test() {
-		def map = [refreshToken : "리프레쉬 토큰", deviceCode : "deviceCode"]
-		HTTPResponse response = request.POST("{host}", map)
+		Random rd = new Random();
+		String rt = String.valueOf(rd.nextInt(200000 - 1) + 1);
+	
+		def map = [refreshToken : rt, deviceCode : "deviceCode"]
+		HTTPResponse response = request.POST("http://{host}:{port}/api/oauth/login/refresh", map)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

@@ -53,7 +53,7 @@ class TestRunner {
 
 	@Test
 	public void test() {
-    HTTPResponse response = request.GET("http://http://gunimon.iptime.org:8090/api/groups/user-district/paging?page=1&size=10")
+    HTTPResponse response = request.GET("http://gunimon.iptime.org:8090/api/groups/user-district/paging?page=1&size=10")
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

@@ -108,19 +108,19 @@ class TestRunner {
 	@Test
 	public void test3() {
 		NVPair param1 = new NVPair("groupId", String.valueOf(groupId));
-		NVPair param2 = new NVPair("title", "제목");
-		NVPair param3 = new NVPair("contents", "내용");
+		NVPair param2 = new NVPair("title", "title");
+		NVPair param3 = new NVPair("contents", "contents");
 		NVPair param4 = new NVPair("postType", "NOTICE");
 
 		NVPair[] params = [param1, param2, param3, param4];
-		NVPair[] files = [];
+		NVPair[] files = [new NVPair("images", "./resources/image.png")];
 
 		def data = Codecs.mpFormDataEncode(params, files, headers)
 		request.setHeaders(headers);
 
 		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/post", data)
 		def result = response.getBody(toJSON);
-		postId = result[0].id;
+		postId = result.id;
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)
@@ -138,7 +138,7 @@ class TestRunner {
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)
 		} else {
-			assertThat(response.statusCode, is(200))
+			assertThat(response.statusCode, is(201))
 		}
 	}
 }

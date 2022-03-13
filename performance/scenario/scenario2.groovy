@@ -32,13 +32,9 @@ class TestRunner {
 
 	public static HTTPRequest request
 	public static NVPair[] headers = []
-	public static List<Cookie> cookies = []
 
 	public static def slurper = new JsonSlurper()
 	public static def toJSON = { slurper.parseText(it) }
-
-	public static String accessToken;
-	public static int groupId;
 
 	@BeforeProcess
 	public static void beforeProcess() {
@@ -60,11 +56,13 @@ class TestRunner {
 		grinder.logger.info("before thread.")
 	}
 
+	private String accessToken;
+	private int groupId;
+
 	@Before
 	public void before() {
 		headers = [ new NVPair("Content-type", "application/json;charset=UTF-8"), new NVPair("Authorization", "Bearer " + accessToken)]
 		request.setHeaders(headers)
-		CookieManager.addCookies(cookies)
 		grinder.logger.info("before. init headers and cookies")
 	}
 
@@ -72,7 +70,7 @@ class TestRunner {
 	@Test
 	public void test1() {
 		def body = [provider: "kakao", authorizationCode: "code", deviceCode: "code"]
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/oauth/login", body)
+		HTTPResponse response = request.POST("http://125.6.40.36:8080/api/oauth/login", body)
 
 		def result = response.getBody(toJSON);
 		accessToken = result.accessToken;
@@ -88,7 +86,7 @@ class TestRunner {
 	@Test
 	public void test2() {
 
-		HTTPResponse response = request.GET("http://gunimon.iptime.org:8090/api/management/my-groups/details")
+		HTTPResponse response = request.GET("http://125.6.40.36:8080/api/management/my-groups/details")
 
 		def result = response.getBody(toJSON);
 		groupId = result[0].id;
@@ -105,7 +103,7 @@ class TestRunner {
 	public void test3() {
 		def body = [groupId: groupId, title: "제목", isOffline: true, startDateTime: "2022-03-01T14:51:48.550212", contents: "내용"]
 
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/schedule", body)
+		HTTPResponse response = request.POST("http://125.6.40.36:8080/api/schedule", body)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

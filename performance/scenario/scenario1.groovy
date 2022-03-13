@@ -33,14 +33,9 @@ class TestRunner {
 
 	public static HTTPRequest request
 	public static NVPair[] headers = []
-	public static List<Cookie> cookies = []
 
 	public static def slurper = new JsonSlurper()
 	public static def toJSON = { slurper.parseText(it) }
-
-	public static String accessToken;
-	public static int groupId;
-	public static int postId;
 
 	@BeforeProcess
 	public static void beforeProcess() {
@@ -64,11 +59,14 @@ class TestRunner {
 		grinder.logger.info("before thread.")
 	}
 
+	private String accessToken;
+	private int groupId;
+	private int postId;
+
 	@Before
 	public void before() {
 		headers = [ new NVPair("Content-type", "application/json;charset=UTF-8"), new NVPair("Authorization", "Bearer " + accessToken)]
 		request.setHeaders(headers)
-		CookieManager.addCookies(cookies)
 		grinder.logger.info("before. init headers and cookies")
 	}
 
@@ -76,7 +74,7 @@ class TestRunner {
 	@Test
 	public void test1() {
 		def body = [provider: "kakao", authorizationCode: "code", deviceCode: "code"]
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/oauth/login", body)
+		HTTPResponse response = request.POST("http://125.6.40.36:8080/api/oauth/login", body)
 
 		def result = response.getBody(toJSON);
 		accessToken = result.accessToken;
@@ -91,8 +89,7 @@ class TestRunner {
 	//내 모임 목록 조회
 	@Test
 	public void test2() {
-
-		HTTPResponse response = request.GET("http://gunimon.iptime.org:8090/api/management/my-groups/details")
+		HTTPResponse response = request.GET("http://125.6.40.36:8080/api/management/my-groups/details")
 
 		def result = response.getBody(toJSON);
 		groupId = result[0].id;
@@ -118,7 +115,7 @@ class TestRunner {
 		def data = Codecs.mpFormDataEncode(params, files, headers)
 		request.setHeaders(headers);
 
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/post", data)
+		HTTPResponse response = request.POST("http://125.6.40.36:8080/api/post", data)
 		def result = response.getBody(toJSON);
 		postId = result.id;
 
@@ -133,7 +130,7 @@ class TestRunner {
 	@Test
 	public void test4() {
 		def body = [postId: postId, contents: "내용"]
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/comment", body)
+		HTTPResponse response = request.POST("http://125.6.40.36:8080/api/comment", body)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

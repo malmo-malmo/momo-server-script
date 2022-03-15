@@ -8,7 +8,6 @@ import net.grinder.script.Grinder
 import net.grinder.scriptengine.groovy.junit.GrinderRunner
 import net.grinder.scriptengine.groovy.junit.annotation.BeforeProcess
 import net.grinder.scriptengine.groovy.junit.annotation.BeforeThread
-// import static net.grinder.util.GrinderUtils.* // You can use this if you're using nGrinder after 3.2.3
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -53,7 +52,10 @@ class TestRunner {
 
 	@Test
 	public void test() {
-    HTTPResponse response = request.GET("http://gunimon.iptime.org:8090/api/groups/user-district/paging?page=1&size=10")
+		Random rand = new Random();
+		int groupId = rand.nextInt(500000);
+
+		HTTPResponse response = request.GET("http://125.6.40.36:8080/api/groups/user-district/paging?groupId=" + groupId + "&page=1&size=10")
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)

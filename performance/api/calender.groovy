@@ -68,8 +68,9 @@ class TestRunner {
 	
 	private String getRandomDate(int min, int max) {
 		Random rand = new Random()
-        def month = String.format("%02d", min + rand.nextInt((max - min) + 1))
-        def day = String.format("%02d", rand.nextInt(28) + 1)
-        return "2021-" + month + "-" + day
+		def month = String.format("%02d", min + rand.nextInt((max - min) + 1))
+		def day = String.format("%02d", rand.nextInt(28) + 1)
+		return "2021-" + month + "-" + day
+    	}
     }
 }

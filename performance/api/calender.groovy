@@ -19,6 +19,8 @@ import org.ngrinder.http.HTTPResponse
 import org.ngrinder.http.cookie.Cookie
 import org.ngrinder.http.cookie.CookieManager
 
+import java.util.Date
+
 @RunWith(GrinderRunner)
 class TestRunner {
 
@@ -52,7 +54,10 @@ class TestRunner {
 
 	@Test
 	public void test() {
-		HTTPResponse response = request.GET("http://gunimon.iptime.org:8090/api/schedule/user-schedules?searchStartDate=2021-12-01&searchEndDate=2021-12-02")
+		def start = getRandomDate(1, 5)
+		def end = getRandomDate(6, 12)
+	
+		HTTPResponse response = request.GET("http://125.6.40.36:8080/api/schedule/user-schedules?searchStartDate=" + start + "&searchEndDate=" + end)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)
@@ -60,4 +65,11 @@ class TestRunner {
 			assertThat(response.statusCode, is(200))
 		}
 	}
+	
+	private String getRandomDate(int min, int max) {
+		Random rand = new Random()
+        def month = String.format("%02d", min + rand.nextInt((max - min) + 1))
+        def day = String.format("%02d", rand.nextInt(28) + 1)
+        return "2021-" + month + "-" + day
+    }
 }

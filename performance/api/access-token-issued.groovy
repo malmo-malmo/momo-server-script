@@ -20,45 +20,68 @@ import org.ngrinder.http.cookie.Cookie
 import org.ngrinder.http.cookie.CookieManager
 
 import HTTPClient.NVPair
+import groovy.json.JsonSlurper
+import HTTPClient.Codecs
 
 @RunWith(GrinderRunner)
 class TestRunner {
 
-	public static GTest test
+	public static GTest test1
+	public static GTest test2
 	public static HTTPRequest request
 	public static NVPair[] headers = []
-	public static List<Cookie> cookies = []
+	
+	public static def slurper = new JsonSlurper()
+	public static def toJSON = { slurper.parseText(it) }
 
 	@BeforeProcess
 	public static void beforeProcess() {
 		HTTPRequestControl.setConnectionTimeout(300000)
-		test = new GTest(1, "Refresh Token Login Performance Test")
+		test1 = new GTest(1, "로그인")
+		test2 = new GTest(2, "엑세스 토큰 재발급")
 		request = new HTTPRequest()
 		grinder.logger.info("before process.")
 	}
 
 	@BeforeThread
 	public void beforeThread() {
-		test.record(this, "test")
+		test1.record(this, "test1")
+		test2.record(this, "test2")
 		grinder.statistics.delayReports = true
 		grinder.logger.info("before thread.")
 	}
 
+	private String accessToken;
+	private String refreshToken;
+	private String deviceCode = "device_code";
+
 	@Before
 	public void before() {
-		headers = [ new NVPair("Content-type", "application/json;charset=UTF-8") ]
+		headers = [ new NVPair("Content-type", "application/json;charset=UTF-8"), new NVPair("Authorization", "Bearer " + accessToken)]
 		request.setHeaders(headers)
-		CookieManager.addCookies(cookies)
 		grinder.logger.info("before. init headers and cookies")
 	}
 
 	@Test
-	public void test() {
-		Random rd = new Random();
-		String rt = String.valueOf(rd.nextInt(200000 - 1) + 1);
+	public void test1() {
+		def map = [provider: "kakao", authorizationCode: "code", deviceCode: deviceCode]
+		HTTPResponse response = request.POST("http://125.6.40.36:8080/api/oauth/login", map)
+		
+		def result = response.getBody(toJSON);
+		accessToken = result.accessToken;
+		refreshToken = result.refreshToken;
 
-		def map = [refreshToken : rt, deviceCode : "deviceCode"]
-		HTTPResponse response = request.POST("http://gunimon.iptime.org:8090/api/oauth/login/refresh", map)
+		if (response.statusCode == 301 || response.statusCode == 302) {
+			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)
+		} else {
+			assertThat(response.statusCode, is(200))
+		}
+	}
+
+	@Test
+	public void test2() {
+		def map = [refreshToken: refreshToken, deviceCode: deviceCode]
+		HTTPResponse response = request.POST("http://125.6.40.36:8080/api/oauth/login/refresh", map)
 
 		if (response.statusCode == 301 || response.statusCode == 302) {
 			grinder.logger.warn("Warning. The response may not be correct. The response code was {}.", response.statusCode)
